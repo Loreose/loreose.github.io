@@ -10,3 +10,23 @@ html > body[data-scroll-locked] {
   margin-right: 0px !important;
   --removed-body-scroll-bar-size: 0px !important;
 }
+
+/* Custom Color Theme Configuration */
+:root {
+  /* Primary Accent Color (Light Mode) */
+  --fd-primary: 262.1 83.3% 57.8%;
+  --fd-primary-foreground: 210 20% 98%;
+}
+
+.dark {
+  /* Primary Accent Color (Dark Mode - Mor/Neon Accent) */
+  --fd-primary: 263.4 70% 50.4%;
+  --fd-primary-foreground: 210 20% 98%;
+
+  /* Dark Theme Backgrounds & Surfaces */
+  --fd-background: 224 71.4% 4.1%;
+  --fd-foreground: 210 20% 98%;
+  --fd-muted: 215 27.9% 16.9%;
+  --fd-muted-foreground: 217.9 10.6% 64.9%;
+  --fd-border: 215 27.9% 16.9%;
+}
