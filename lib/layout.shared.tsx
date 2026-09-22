@@ -11,13 +11,13 @@ export function baseOptions(): BaseLayoutProps {
           <img
             src="/logo-dark.png"
             alt={appName}
-            className="h-6 w-auto block dark:hidden"
+            className="h-10 w-auto block dark:hidden"
           />
           {/* Dark Theme Logo */}
           <img
             src="/logo-light.png"
             alt={appName}
-            className="h-6 w-auto hidden dark:block"
+            className="h-10 w-auto hidden dark:block"
           />
           <span>{appName}</span>
         </div>
