@@ -60,15 +60,14 @@ end
 ## Example
 
 ```lua
---- RegisterNetEvent('myScript:server:payoutJob', function()
----     local src = source
----     local rewardAmount = 1500
----
----     -- Add player's salary to bank account
----     local success = Bridge.AddMoney(src, 'bank', rewardAmount, 'job-reward')
----
----     if success then
----         Bridge.Notify(src, string.format('Your salary has been deposited into your bank: $%d', rewardAmount), 'success')
----     end
---- end)
+RegisterNetEvent('myScript:server:payoutJob', function()
+    local src = source
+    local rewardAmount = 1500
+
+    -- Add player's salary to bank account
+    local success = Bridge.AddMoney(src, 'bank', rewardAmount, 'job-reward')
+    if success then
+        Bridge.Notify(src, string.format('Your salary has been deposited into your bank: $%d', rewardAmount), 'success')
+    end
+end)
 ```

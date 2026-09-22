@@ -1,5 +1,5 @@
 ---
-title: Bridge.GetMoney()
+title: GetMoney
 description: Server-side methods to query cash or account balances across supported frameworks.
 ---
 
@@ -55,16 +55,13 @@ end
 ## Example
 
 ```lua
---- RegisterNetEvent('myScript:server:checkBalance', function()
----     local src = source
----
----     local bankBalance = Bridge.GetMoney(src, 'bank')
----     local cashBalance = Bridge.GetMoney(src, 'cash')
----
----     print(string.format("Oyuncu ID: %d | Banka: $%d | Nakit: $%d", src, bankBalance, cashBalance))
----
----     if bankBalance >= 10000 then
----         Bridge.Notify(src, 'VIP erişim için paranız yeterli!', 'info')
----     end
---- end)
+RegisterNetEvent('myScript:server:checkBalance', function()
+    local src = source
+    local bankBalance = Bridge.GetMoney(src, 'bank')
+    local cashBalance = Bridge.GetMoney(src, 'cash')
+    print(string.format("Oyuncu ID: %d | Banka: $%d | Nakit: $%d", src, bankBalance, cashBalance))
+    if bankBalance >= 10000 then
+        Bridge.Notify(src, 'VIP erişim için paranız yeterli!', 'info')
+    end
+end)
 ```

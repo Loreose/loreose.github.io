@@ -1,5 +1,5 @@
 ---
-title: Bridge.RemoveMoney()
+title: RemoveMoney
 description: Server-side methods to deduct cash or account balances across supported frameworks.
 ---
 
@@ -65,18 +65,16 @@ end
 ## Example
 
 ```lua
---- RegisterNetEvent('myScript:server:buyItem', function()
----     local src = source
----     local price = 250
----
----     -- Oyuncudan nakit para düşmeyi dene
----     local paid = Bridge.RemoveMoney(src, 'cash', price, 'store-buy')
----
----     if paid then
----         Bridge.AddItem(src, 'water', 1)
----         Bridge.Notify(src, 'Satın alım başarılı!', 'success')
----     else
----         Bridge.Notify(src, 'Yeterli nakit paranız yok!', 'error')
----     end
---- end)
+RegisterNetEvent('myScript:server:buyItem', function()
+    local src = source
+    local price = 250
+    -- Oyuncudan nakit para düşmeyi dene
+    local paid = Bridge.RemoveMoney(src, 'cash', price, 'store-buy')
+    if paid then
+        Bridge.AddItem(src, 'water', 1)
+        Bridge.Notify(src, 'Satın alım başarılı!', 'success')
+    else
+        Bridge.Notify(src, 'Yeterli nakit paranız yok!', 'error')
+    end
+end)
 ```

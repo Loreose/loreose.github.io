@@ -1,5 +1,5 @@
 ---
-title: Bridge.RegisterUsableItem()
+title: RegisterUsableItem
 description: Server-side methods to register usable items across supported frameworks and inventory systems.
 ---
 
@@ -51,16 +51,14 @@ end
 ## Example
 
 ```lua
---- Bridge.RegisterUsableItem('burger', function(source, item)
----     local src = source
----
----     -- Deduct 1 item from inventory and trigger consumption effect
----     local used = Bridge.UseItem(src, 'burger', 1, true)
----
----     if used then
----         -- Trigger hunger restoration on client
----         TriggerClientEvent('myScript:client:eatBurger', src)
----         Bridge.Notify(src, 'You ate a delicious burger.', 'success')
----     end
---- end)
+Bridge.RegisterUsableItem('burger', function(source, item)
+    local src = source
+    -- Deduct 1 item from inventory and trigger consumption effect
+    local used = Bridge.UseItem(src, 'burger', 1, true)
+    if used then
+        -- Trigger hunger restoration on client
+        TriggerClientEvent('myScript:client:eatBurger', src)
+        Bridge.Notify(src, 'You ate a delicious burger.', 'success')
+    end
+end)
 ```

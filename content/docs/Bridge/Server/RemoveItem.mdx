@@ -1,5 +1,5 @@
 ---
-title: Bridge.RemoveItem()
+title: RemoveItem
 description: Server-side methods to manage items across supported inventory systems.
 ---
 
@@ -53,18 +53,15 @@ end
 ## Example
 
 ```lua
---- RegisterNetEvent('myScript:server:useCraftingItem', function()
----     local src = source
----
----     -- Remove 1x scrap metal from player's inventory
----     local removed = Bridge.RemoveItem(src, 'scrapmetal', 1)
----
----     if removed then
----         print("Scrap metal successfully removed.")
----     else
----         Bridge.Notify(src, 'You do not have enough scrap metal in your inventory!', 'error')
----     end
---- end)
-```
-```
+RegisterNetEvent('myScript:server:useCraftingItem', function()
+    local src = source
+    -- Remove 1x scrap metal from player's inventory
+    local removed = Bridge.RemoveItem(src, 'scrapmetal', 1)
+    if removed then
+        print("Scrap metal successfully removed.")
+    else
+        Bridge.Notify(src, 'You do not have enough scrap metal in your inventory!', 'error')
+    end
+end)
+
 ````

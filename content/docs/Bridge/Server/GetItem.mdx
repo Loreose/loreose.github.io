@@ -1,5 +1,5 @@
 ---
-title: Bridge.GetItemCount()
+title: GetItemCount()
 description: Server-side methods to query item quantities across supported inventory systems.
 ---
 
@@ -47,23 +47,20 @@ end
 ## Example
 
 ```lua
---- RegisterNetEvent('myScript:server:sellGold', function()
----     local src = source
----
----     -- Check total gold ingot count in player inventory
----     local goldCount = Bridge.GetItemCount(src, 'goldingot')
----
----     if goldCount > 0 then
----         local pricePerGold = 500
----         local totalEarnings = goldCount * pricePerGold
----
----         -- Remove all gold ingots and add earnings
----         if Bridge.RemoveItem(src, 'goldingot', goldCount) then
----             Bridge.AddMoney(src, 'cash', totalEarnings, "gold-sale")
----             Bridge.Notify(src, string.format('Sold %d gold ingots for $%d', goldCount, totalEarnings), 'success')
----         end
----     else
----         Bridge.Notify(src, 'You have no gold ingots to sell!', 'error')
----     end
---- end)
+RegisterNetEvent('myScript:server:sellGold', function()
+    local src = source
+    -- Check total gold ingot count in player inventory
+    local goldCount = Bridge.GetItemCount(src, 'goldingot')
+    if goldCount > 0 then
+        local pricePerGold = 500
+        local totalEarnings = goldCount * pricePerGold
+        -- Remove all gold ingots and add earnings
+        if Bridge.RemoveItem(src, 'goldingot', goldCount) then
+            Bridge.AddMoney(src, 'cash', totalEarnings, "gold-sale")
+            Bridge.Notify(src, string.format('Sold %d gold ingots for $%d', goldCount, totalEarnings), 'success')
+        end
+    else
+        Bridge.Notify(src, 'You have no gold ingots to sell!', 'error')
+    end
+end)
 ```

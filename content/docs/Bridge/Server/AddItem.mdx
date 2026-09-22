@@ -1,5 +1,5 @@
 ---
-title: Bridge.AddItem()
+title: AddItem
 description: Adds items to a player's inventory using the framework-agnostic bridge.
 ---
 
@@ -53,15 +53,13 @@ end
 ## Example
 
 ```lua
---- RegisterNetEvent('myScript:server:rewardPlayer', function()
----     local src = source
----
----     -- Reward player with 2x water and 1x radio with metadata
----     local addedWater = Bridge.AddItem(src, 'water', 2)
----     local addedRadio = Bridge.AddItem(src, 'radio', 1, { channel = 101 })
----
----     if addedWater and addedRadio then
----         Bridge.Notify(src, 'Rewards added to your inventory!', 'success')
----     end
---- end)
+RegisterNetEvent('myScript:server:rewardPlayer', function()
+    local src = source
+    -- Reward player with 2x water and 1x radio with metadata
+    local addedWater = Bridge.AddItem(src, 'water', 2)
+    local addedRadio = Bridge.AddItem(src, 'radio', 1, { channel = 101 })
+    if addedWater and addedRadio then
+        Bridge.Notify(src, 'Rewards added to your inventory!', 'success')
+    end
+end)
 ```

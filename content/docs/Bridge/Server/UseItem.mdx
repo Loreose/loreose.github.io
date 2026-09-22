@@ -1,5 +1,5 @@
 ---
-title: Bridge.UseItem()
+title: UseItem
 description: Server-side methods to validate item availability and conditionally consume items upon usage.
 ---
 
@@ -54,17 +54,15 @@ end
 ## Example
 
 ```lua
---- Bridge.RegisterUsableItem('medkit', function(source, item)
----     local src = source
----
----     -- Check for medkit without removing it (removeOnUse = false)
----     -- Useful when item removal should happen after client animation finishes:
----     local hasItem = Bridge.UseItem(src, 'medkit', 1, false)
----
----     if hasItem then
----         TriggerClientEvent('myScript:client:startHealing', src)
----     else
----         Bridge.Notify(src, 'You do not have a medkit!', 'error')
----     end
---- end)
+Bridge.RegisterUsableItem('medkit', function(source, item)
+    local src = source
+    -- Check for medkit without removing it (removeOnUse = false)
+    -- Useful when item removal should happen after client animation finishes:
+    local hasItem = Bridge.UseItem(src, 'medkit', 1, false)
+    if hasItem then
+        TriggerClientEvent('myScript:client:startHealing', src)
+    else
+        Bridge.Notify(src, 'You do not have a medkit!', 'error')
+    end
+end)
 ```
