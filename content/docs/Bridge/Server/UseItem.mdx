@@ -1,0 +1,70 @@
+---
+title: Bridge.UseItem()
+description: Server-side methods to validate item availability and conditionally consume items upon usage.
+---
+
+# Inventory Management
+
+The Inventory module provides a framework-agnostic bridge to handle item operations across supported inventory handlers like `ox_inventory`, `qb-inventory`, and native framework inventories.
+
+---
+
+## Function: `Bridge.UseItem()`
+
+Validates whether a player possesses a specified item quantity and optionally removes it from their inventory upon successful verification.
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `itemName` (**string**): The internal item name registered in your inventory items list (e.g., `'medkit'`, `'lockpick'`).
+- `amount` (**number**, _optional_): The required quantity to use. Default is `1`.
+- `removeOnUse` (**boolean**, _optional_): Determines whether the item should be automatically removed upon successful check. Default is `true`.
+
+### Returns
+
+- **boolean**: Returns `true` if the player has the required amount and consumption (if requested) succeeds, or `false` otherwise.
+
+---
+
+## Implementation Code
+
+```lua
+--- Validates and conditionally consumes an item from the player's inventory.
+---
+--- @param source number Server ID of the target player
+--- @param itemName string Internal item name
+--- @param amount? number Required item quantity (Default: 1)
+--- @param removeOnUse? boolean Automatically deduct item if available (Default: true)
+--- @return boolean Success status
+Bridge.UseItem = function(source, itemName, amount, removeOnUse)
+    local amount = amount or 1
+    local removeOnUse = removeOnUse == nil and true or removeOnUse
+
+    if Bridge.HasItem(source, itemName, amount) then
+        if removeOnUse then
+            Bridge.RemoveItem(source, itemName, amount)
+        end
+        return true
+    end
+
+    return false
+end
+```
+
+## Example
+
+```lua
+--- Bridge.RegisterUsableItem('medkit', function(source, item)
+---     local src = source
+---
+---     -- Check for medkit without removing it (removeOnUse = false)
+---     -- Useful when item removal should happen after client animation finishes:
+---     local hasItem = Bridge.UseItem(src, 'medkit', 1, false)
+---
+---     if hasItem then
+---         TriggerClientEvent('myScript:client:startHealing', src)
+---     else
+---         Bridge.Notify(src, 'You do not have a medkit!', 'error')
+---     end
+--- end)
+```

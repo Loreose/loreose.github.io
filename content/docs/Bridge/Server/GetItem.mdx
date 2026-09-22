@@ -1,0 +1,69 @@
+---
+title: Bridge.GetItemCount()
+description: Server-side methods to query item quantities across supported inventory systems.
+---
+
+# Item Management
+
+The Item module provides a framework-agnostic bridge to handle item operations across supported inventory handlers like `ox_inventory` and `qb-inventory`.
+
+---
+
+## Function: `Bridge.GetItemCount()`
+
+Returns the total quantity of a specific item present in a player's inventory.
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `item` (**string**): The internal item name registered in your inventory items list (e.g., `'goldingot'`, `'water'`).
+
+### Returns
+
+- **number**: Returns the total amount of the specified item found in the inventory, or `0` if none exists or the player is invalid.
+
+---
+
+## Implementation Code
+
+```lua
+--- Retrieves the total count of a specific item in a player's inventory.
+---
+--- @param source number Server ID of the target player
+--- @param item string Internal item name
+--- @return number Total item quantity
+Bridge.GetItemCount = function(source, item)
+    if Bridge.Inventory == 'ox' then
+        return exports.ox_inventory:Search(source, 'count', item) or 0
+    elseif Bridge.Inventory == 'qb' then
+        local QBCore = exports['qb-core']:GetCoreObject()
+        local itemData = QBCore.Functions.GetItemByName(item)
+        return itemData and itemData.amount or 0
+    end
+    return 0
+end
+```
+
+## Example
+
+```lua
+--- RegisterNetEvent('myScript:server:sellGold', function()
+---     local src = source
+---
+---     -- Check total gold ingot count in player inventory
+---     local goldCount = Bridge.GetItemCount(src, 'goldingot')
+---
+---     if goldCount > 0 then
+---         local pricePerGold = 500
+---         local totalEarnings = goldCount * pricePerGold
+---
+---         -- Remove all gold ingots and add earnings
+---         if Bridge.RemoveItem(src, 'goldingot', goldCount) then
+---             Bridge.AddMoney(src, 'cash', totalEarnings, "gold-sale")
+---             Bridge.Notify(src, string.format('Sold %d gold ingots for $%d', goldCount, totalEarnings), 'success')
+---         end
+---     else
+---         Bridge.Notify(src, 'You have no gold ingots to sell!', 'error')
+---     end
+--- end)
+```

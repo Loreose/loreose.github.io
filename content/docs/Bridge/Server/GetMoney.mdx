@@ -1,0 +1,70 @@
+---
+title: Bridge.GetMoney()
+description: Server-side methods to query cash or account balances across supported frameworks.
+---
+
+# Player Management
+
+The Player module handles framework-agnostic player data retrieval and financial transactions, abstracting differences between QBCore and ESX account types.
+
+---
+
+## Function: `Bridge.GetMoney()`
+
+Returns the current currency balance of a player for a specific account type (`cash`, `bank`, etc.). Automatically translates account types (`cash` to `money` for ESX).
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `moneyType` (**string**): The target account type (e.g., `'cash'`, `'bank'`, `'crypto'`).
+
+### Returns
+
+- **number**: Returns the current balance of the specified account, or `0` if the player or account is invalid.
+
+---
+
+## Implementation Code
+
+```lua
+--- Retrieves the currency balance for a specific player account.
+---
+--- @param source number Server ID of the target player
+--- @param moneyType string Target account type ('cash', 'bank', etc.)
+--- @return number Current account balance
+Bridge.GetMoney = function(source, moneyType)
+    local Player = Bridge.GetPlayer(source)
+    if not Player then return 0 end
+
+    local moneyType = moneyType == 'cash' and (Bridge.Framework == 'esx' and 'money' or 'cash') or moneyType
+
+    if Bridge.Framework == 'qb' then
+        return Player.PlayerData.money[moneyType] or 0
+    elseif Bridge.Framework == 'esx' then
+        if moneyType == 'money' then
+            return Player.getMoney()
+        else
+            local account = Player.getAccount(moneyType)
+            return account and account.money or 0
+        end
+    end
+    return 0
+end
+```
+
+## Example
+
+```lua
+--- RegisterNetEvent('myScript:server:checkBalance', function()
+---     local src = source
+---
+---     local bankBalance = Bridge.GetMoney(src, 'bank')
+---     local cashBalance = Bridge.GetMoney(src, 'cash')
+---
+---     print(string.format("Oyuncu ID: %d | Banka: $%d | Nakit: $%d", src, bankBalance, cashBalance))
+---
+---     if bankBalance >= 10000 then
+---         Bridge.Notify(src, 'VIP erişim için paranız yeterli!', 'info')
+---     end
+--- end)
+```

@@ -1,0 +1,66 @@
+---
+title: Bridge.RegisterUsableItem()
+description: Server-side methods to register usable items across supported frameworks and inventory systems.
+---
+
+# Inventory Management
+
+The Inventory module provides a framework-agnostic bridge to handle item operations across supported inventory handlers like `ox_inventory`, `qb-core`, and `es_extended`.
+
+---
+
+## Function: `Bridge.RegisterUsableItem()`
+
+Registers a callback function that triggers when a player uses a specific item from their inventory.
+
+### Parameters
+
+- `itemName` (**string**): The internal item name registered in your inventory items list (e.g., `'burger'`, `'medkit'`).
+- `callback` (**function**): The callback function executed when the item is used. Passes `source` (**number**) and `item` (**table** or **string**) as parameters.
+
+---
+
+## Implementation Code
+
+```lua
+--- Registers a usable item callback across ox_inventory, QBCore, and ESX.
+---
+--- @param itemName string Internal item name
+--- @param callback function Callback function triggered on item usage
+Bridge.RegisterUsableItem = function(itemName, callback)
+    if Bridge.Inventory == 'ox' then
+        exports.ox_inventory:registerHook('useItem', function(payload)
+            if payload.item.name == itemName then
+                callback(payload.source, payload.item)
+            end
+        end)
+    elseif Bridge.Framework == 'qb' then
+        local QBCore = exports['qb-core']:GetCoreObject()
+        QBCore.Functions.CreateUseableItem(itemName, function(source, item)
+            callback(source, item)
+        end)
+    elseif Bridge.Framework == 'esx' then
+        local ESX = exports['es_extended']:getSharedObject()
+        ESX.RegisterUsableItem(itemName, function(source, item)
+            callback(source, item)
+        end)
+    end
+end
+```
+
+## Example
+
+```lua
+--- Bridge.RegisterUsableItem('burger', function(source, item)
+---     local src = source
+---
+---     -- Deduct 1 item from inventory and trigger consumption effect
+---     local used = Bridge.UseItem(src, 'burger', 1, true)
+---
+---     if used then
+---         -- Trigger hunger restoration on client
+---         TriggerClientEvent('myScript:client:eatBurger', src)
+---         Bridge.Notify(src, 'You ate a delicious burger.', 'success')
+---     end
+--- end)
+```

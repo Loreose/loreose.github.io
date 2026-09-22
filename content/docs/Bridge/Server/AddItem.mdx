@@ -1,0 +1,67 @@
+---
+title: Bridge.AddItem()
+description: Adds items to a player's inventory using the framework-agnostic bridge.
+---
+
+# Item Management
+
+The Item module provides a framework-agnostic bridge to handle item operations across supported inventory handlers like `ox_inventory` and `qb-inventory`.
+
+---
+
+## Function: `Bridge.AddItem()`
+
+Adds a specified item and quantity to a player's inventory, with support for optional custom metadata.
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `item` (**string**): The internal item name registered in your inventory items list (e.g., `'water'`, `'radio'`).
+- `count` (**number**, _optional_): The quantity of the item to give. Default is `1`.
+- `metadata` (**table**, _optional_): Custom metadata payload attached to the given item (e.g., `{ channel = 101 }`).
+
+### Returns
+
+- **boolean**: Returns `true` if the item was successfully added to the inventory, or `false` if the operation failed.
+
+---
+
+## Implementation Code
+
+```lua
+--- Adds an item to the specified player's inventory.
+---
+--- @param source number Server ID of the target player
+--- @param item string Internal item name
+--- @param count? number Quantity to add (Default: 1)
+--- @param metadata? table Custom metadata payload attached to the given item (e.g., `{ channel = 101 }`)
+--- @return boolean Success status
+Bridge.AddItem = function(source, item, count, metadata)
+    local count = count or 1
+
+    if Bridge.Inventory == 'ox' then
+        return exports.ox_inventory:AddItem(source, item, count, metadata)
+    elseif Bridge.Inventory == 'qb' then
+        local QBCore = exports['qb-core']:GetCoreObject()
+        return QBCore.Functions.AddItem(item, count, nil, metadata)
+    end
+    return false
+end
+
+```
+
+## Example
+
+```lua
+--- RegisterNetEvent('myScript:server:rewardPlayer', function()
+---     local src = source
+---
+---     -- Reward player with 2x water and 1x radio with metadata
+---     local addedWater = Bridge.AddItem(src, 'water', 2)
+---     local addedRadio = Bridge.AddItem(src, 'radio', 1, { channel = 101 })
+---
+---     if addedWater and addedRadio then
+---         Bridge.Notify(src, 'Rewards added to your inventory!', 'success')
+---     end
+--- end)
+```

@@ -1,0 +1,74 @@
+---
+title: Bridge.AddMoney()
+description: Server-side methods to add cash or account balances across supported frameworks.
+---
+
+# Player Management
+
+The Player module handles framework-agnostic player data retrieval and financial transactions, abstracting differences between QBCore and ESX account types.
+
+---
+
+## Function: `Bridge.AddMoney()`
+
+Adds a specified amount of currency to a player's cash or bank account. Automatically translates account types (`cash` to `money` for ESX).
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `moneyType` (**string**): The target account type (e.g., `'cash'`, `'bank'`, `'crypto'`).
+- `amount` (**number**): The amount of money to deposit.
+- `reason` (**string**, _optional_): Audit or logging reason for the transaction. Default is `"bridge-add-money"`.
+
+### Returns
+
+- **boolean**: Returns `true` if the currency was successfully deposited, or `false` if the player was not found or the operation failed.
+
+---
+
+## Implementation Code
+
+```lua
+--- Adds currency to a player's designated account type.
+---
+--- @param source number Server ID of the target player
+--- @param moneyType string Target account type ('cash', 'bank', etc.)
+--- @param amount number Amount to deposit
+--- @param reason? string Transaction log reason
+--- @return boolean Success status
+Bridge.AddMoney = function(source, moneyType, amount, reason)
+    local Player = Bridge.GetPlayer(source)
+    if not Player then return false end
+
+    local moneyType = moneyType == 'cash' and (Bridge.Framework == 'esx' and 'money' or 'cash') or moneyType
+    local amount = tonumber(amount) or 0
+
+    if Bridge.Framework == 'qb' then
+        return Player.Functions.AddMoney(moneyType, amount, reason or "bridge-add-money")
+    elseif Bridge.Framework == 'esx' then
+        if moneyType == 'money' then
+            Player.addMoney(amount)
+        else
+            Player.addAccountMoney(moneyType, amount)
+        end
+        return true
+    end
+    return false
+end
+```
+
+## Example
+
+```lua
+--- RegisterNetEvent('myScript:server:payoutJob', function()
+---     local src = source
+---     local rewardAmount = 1500
+---
+---     -- Add player's salary to bank account
+---     local success = Bridge.AddMoney(src, 'bank', rewardAmount, 'job-reward')
+---
+---     if success then
+---         Bridge.Notify(src, string.format('Your salary has been deposited into your bank: $%d', rewardAmount), 'success')
+---     end
+--- end)
+```

@@ -1,0 +1,76 @@
+---
+title: Bridge.HasItem()
+description: Server-side methods to verify item availability in player inventory across supported frameworks and inventories.
+---
+
+# Inventory Management
+
+The Inventory module provides a framework-agnostic bridge to handle item operations across supported inventory handlers like `ox_inventory`, `qb-inventory`, and native framework inventories.
+
+---
+
+## Function: `Bridge.HasItem()`
+
+Checks whether a player possesses a specified item and minimum required amount in their inventory.
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `itemName` (**string**): The internal item name registered in your inventory items list (e.g., `'iron'`, `'weapon_knife'`).
+- `amount` (**number**, _optional_): The minimum quantity required. Default is `1`.
+
+### Returns
+
+- **boolean**: Returns `true` if the player has at least the specified amount of the item, or `false` otherwise.
+
+---
+
+## Implementation Code
+
+```lua
+--- Checks if a player has the required quantity of an item.
+---
+--- @param source number Server ID of the target player
+--- @param itemName string Internal item name
+--- @param amount? number Minimum required quantity (Default: 1)
+--- @return boolean True if requirements met, false otherwise
+Bridge.HasItem = function(source, itemName, amount)
+    local amount = amount or 1
+
+    if Bridge.Inventory == 'ox' then
+        return exports.ox_inventory:Search(source, 'count', itemName) >= amount
+    else
+        local Player = Bridge.GetPlayer(source)
+        if not Player then return false end
+
+        if Bridge.Framework == 'qb' then
+            local itemData = Player.Functions.GetItemByName(itemName)
+            return itemData and itemData.amount >= amount
+        elseif Bridge.Framework == 'esx' then
+            local itemData = Player.getInventoryItem(itemName)
+            return itemData and itemData.count >= amount
+        end
+    end
+
+    return false
+end
+```
+
+## Example
+
+```lua
+--- RegisterNetEvent('myScript:server:craftWeapon', function()
+---     local src = source
+---
+---     -- Oyuncunun üzerinde en az 5 adet demir var mı kontrol et
+---     local hasIron = Bridge.HasItem(src, 'iron', 5)
+---
+---     if hasIron then
+---         Bridge.RemoveItem(src, 'iron', 5)
+---         Bridge.AddItem(src, 'weapon_knife', 1)
+---         Bridge.Notify(src, 'Knife successfully crafted!', 'success')
+---     else
+---         Bridge.Notify(src, 'You do not have enough iron to craft this item! (Required: 5)', 'error')
+---     end
+--- end)
+```

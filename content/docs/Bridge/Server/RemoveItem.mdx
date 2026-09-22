@@ -1,0 +1,70 @@
+---
+title: Bridge.RemoveItem()
+description: Server-side methods to manage items across supported inventory systems.
+---
+
+# Item Management
+
+The Item module provides a framework-agnostic bridge to handle item operations across supported inventory handlers like `ox_inventory` and `qb-inventory`.
+
+---
+
+## Function: `Bridge.RemoveItem()`
+
+Removes a specified item and quantity from a player's inventory, with support for optional custom metadata filtering.
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `item` (**string**): The internal item name registered in your inventory items list (e.g., `'scrapmetal'`, `'water'`).
+- `count` (**number**, _optional_): The quantity of the item to remove. Default is `1`.
+- `metadata` (**table**, _optional_): Custom metadata payload to match when removing the item (e.g., `{ channel = 101 }`).
+
+### Returns
+
+- **boolean**: Returns `true` if the item was successfully removed from the inventory, or `false` if the operation failed.
+
+---
+
+## Implementation Code
+
+````lua
+--- Removes an item from the specified player's inventory.
+---
+--- @param source number Server ID of the target player
+--- @param item string Internal item name
+--- @param count? number Quantity to remove (Default: 1)
+--- @param metadata? table Custom metadata table filter
+--- @return boolean Success status
+Bridge.RemoveItem = function(source, item, count, metadata)
+    local count = count or 1
+
+    if Bridge.Inventory == 'ox' then
+        return exports.ox_inventory:RemoveItem(source, item, count, nil, metadata)
+    elseif Bridge.Inventory == 'qb' then
+        local QBCore = exports['qb-core']:GetCoreObject()
+        return QBCore.Functions.RemoveItem(item, count, nil, metadata)
+    end
+    return false
+end
+
+```
+
+## Example
+
+```lua
+--- RegisterNetEvent('myScript:server:useCraftingItem', function()
+---     local src = source
+---
+---     -- Remove 1x scrap metal from player's inventory
+---     local removed = Bridge.RemoveItem(src, 'scrapmetal', 1)
+---
+---     if removed then
+---         print("Scrap metal successfully removed.")
+---     else
+---         Bridge.Notify(src, 'You do not have enough scrap metal in your inventory!', 'error')
+---     end
+--- end)
+```
+```
+````

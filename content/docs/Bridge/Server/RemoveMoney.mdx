@@ -1,0 +1,82 @@
+---
+title: Bridge.RemoveMoney()
+description: Server-side methods to deduct cash or account balances across supported frameworks.
+---
+
+# Player Management
+
+The Player module handles framework-agnostic player data retrieval and financial transactions, abstracting differences between QBCore and ESX account types.
+
+---
+
+## Function: `Bridge.RemoveMoney()`
+
+Deducts a specified amount of currency from a player's cash or bank account if sufficient funds are available. Automatically translates account types (`cash` to `money` for ESX).
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+- `moneyType` (**string**): The target account type (e.g., `'cash'`, `'bank'`, `'crypto'`).
+- `amount` (**number**): The amount of money to deduct.
+- `reason` (**string**, _optional_): Audit or logging reason for the transaction. Default is `"bridge-remove-money"`.
+
+### Returns
+
+- **boolean**: Returns `true` if the currency was successfully deducted, or `false` if funds were insufficient, the player was not found, or the operation failed.
+
+---
+
+## Implementation Code
+
+```lua
+--- Deducts currency from a player's designated account type.
+---
+--- @param source number Server ID of the target player
+--- @param moneyType string Target account type ('cash', 'bank', etc.)
+--- @param amount number Amount to deduct
+--- @param reason? string Transaction log reason
+--- @return boolean Success status
+Bridge.RemoveMoney = function(source, moneyType, amount, reason)
+    local Player = Bridge.GetPlayer(source)
+    if not Player then return false end
+
+    local moneyType = moneyType == 'cash' and (Bridge.Framework == 'esx' and 'money' or 'cash') or moneyType
+    local amount = tonumber(amount) or 0
+
+    if Bridge.Framework == 'qb' then
+        return Player.Functions.RemoveMoney(moneyType, amount, reason or "bridge-remove-money")
+    elseif Bridge.Framework == 'esx' then
+        if moneyType == 'money' then
+            if Player.getMoney() >= amount then
+                Player.removeMoney(amount)
+                return true
+            end
+        else
+            if Player.getAccount(moneyType).money >= amount then
+                Player.removeAccountMoney(moneyType, amount)
+                return true
+            end
+        end
+    end
+    return false
+end
+```
+
+## Example
+
+```lua
+--- RegisterNetEvent('myScript:server:buyItem', function()
+---     local src = source
+---     local price = 250
+---
+---     -- Oyuncudan nakit para düşmeyi dene
+---     local paid = Bridge.RemoveMoney(src, 'cash', price, 'store-buy')
+---
+---     if paid then
+---         Bridge.AddItem(src, 'water', 1)
+---         Bridge.Notify(src, 'Satın alım başarılı!', 'success')
+---     else
+---         Bridge.Notify(src, 'Yeterli nakit paranız yok!', 'error')
+---     end
+--- end)
+```
