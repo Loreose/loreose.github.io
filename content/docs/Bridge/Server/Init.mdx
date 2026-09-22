@@ -1,0 +1,73 @@
+---
+title: Player Management
+description: Server-side methods to fetch framework player objects and unique identifiers.
+---
+
+# Player Management
+
+The Player module handles framework-agnostic player data retrieval on the server side. It seamlessly bridges QBCore's `PlayerData` and ESX's `xPlayer` structures into unified methods.
+
+---
+
+## Function: `Bridge.GetPlayer`
+
+Retrieves the framework's native player object (`xPlayer` for ESX or `Player` for QBCore) using the player's server ID.
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+
+### Returns
+
+- **table** or **nil**: Returns the native player object if found, otherwise returns `nil`.
+
+---
+
+## Function: `Bridge.GetIdentifier`
+
+Retrieves the unique identifier of the specified player (`citizenid` for QBCore or `identifier` for ESX).
+
+### Parameters
+
+- `source` (**number**): The server ID (source) of the player.
+
+### Returns
+
+- **string** or **nil**: Returns the player's unique identifier string if found, otherwise returns `nil`.
+
+---
+
+## Implementation Code
+
+```lua
+--- Fetches the native player object based on active framework.
+---
+--- @param source number Server ID of the target player
+--- @return table|nil Player object or nil
+Bridge.GetPlayer = function(source)
+    if Bridge.Framework == 'qb' then
+        local QBCore = exports['qb-core']:GetCoreObject()
+        return QBCore.Functions.GetPlayer(source)
+    elseif Bridge.Framework == 'esx' then
+        local ESX = exports['es_extended']:getSharedObject()
+        return ESX.GetPlayerFromId(source)
+    end
+    return nil
+end
+
+--- Retrieves the unique framework identifier for a given player.
+---
+--- @param source number Server ID of the target player
+--- @return string|nil Citizen ID (QBCore) or Identifier (ESX)
+Bridge.GetIdentifier = function(source)
+    local Player = Bridge.GetPlayer(source)
+    if not Player then return nil end
+
+    if Bridge.Framework == 'qb' then
+        return Player.PlayerData.citizenid
+    elseif Bridge.Framework == 'esx' then
+        return Player.identifier
+    end
+    return nil
+end
+```

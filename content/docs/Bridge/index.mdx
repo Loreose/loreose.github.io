@@ -1,0 +1,35 @@
+---
+title: Bridge
+description: Learn how to include and configure the framework-agnostic bridge in your FiveM resource.
+---
+
+# Initializing the Bridge
+
+The Bridge system acts as a universal abstraction layer between your resource and the FiveM server environment. It automatically detects and binds supported frameworks, inventory systems, target tools, and dispatch resources with zero external configuration required.
+
+---
+
+## Automatic Core Setup
+
+To initialize the bridge, simply include it in your resource's `fxmanifest.lua`. The core system detects your server context (Client or Server) and loads the required modules automatically.
+
+```lua
+-- fxmanifest.lua
+
+shared_scripts {
+    '@ox_lib/init.lua',
+    'bridge/shared/*.lua',
+    'config.lua'
+}
+
+client_scripts {
+    'bridge/client/*.lua',
+    'client/*.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'bridge/server/*.lua',
+    'server/*.lua'
+}
+```

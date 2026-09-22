@@ -1,0 +1,70 @@
+---
+title: Police Dispatch
+description: Send custom emergency alerts to law enforcement using ps-dispatch.
+---
+
+# Police Dispatch
+
+The Dispatch module provides a clean abstraction layer for `ps-dispatch`. It allows you to trigger custom emergency alerts, map blips, and notifications directly using the player's active position.
+
+---
+
+## Function: `Bridge.SendPoliceAlert`
+
+Triggers a police dispatch alert and places a temporary blip on the map for emergency services.
+
+### Parameters
+
+- `data` (**table**): The notification payload object containing alert settings.
+  - `code` (**string**): The dispatch code shown on the alert interface (e.g., `'10-90'`).
+  - `title` (**string**): Brief title describing the alert (e.g., `'Bank Robbery'`).
+  - `message` (**string**): Detailed message or note describing the situation.
+  - `sprite` (**number**): Blip sprite ID displayed on the map/radar.
+  - `color` (**number**): Color ID for the map blip.
+  - `scale` (**number**, _optional_): Scale factor of the blip icon. Default is `0.8`.
+  - `length` (**number**, _optional_): Active duration of the blip in minutes. Default is `3`.
+  - `radius` (**number**, _optional_): Radius offset drawn around the blip location. Default is `0`.
+
+---
+
+## Implementation Code
+
+```lua
+--- Sends a police alert using the ps-dispatch export interface.
+---
+--- @param data table Dispatch configuration object
+Bridge.SendPoliceAlert = function(data)
+    if GetResourceState('ps-dispatch') == 'started' then
+        local ped = PlayerPedId()
+        local coords = GetEntityCoords(ped)
+
+        exports['ps-dispatch']:CustomAlert({
+            coords = coords,
+            dispatchCode = data.code,
+            description = data.title,
+            message = data.message,
+            priority = 2,
+            alert = {
+                sprite = data.sprite,
+                color = data.color,
+                scale = data.scale or 0.8,
+                length = data.length or 3,
+                radius = data.radius or 0,
+            }
+        })
+    end
+end
+```
+
+## Examples
+
+```lua
+-- Send a bank robbery alert
+Bridge.SendPoliceAlert({
+    code = '10-90',
+    title = 'Bank Robbery',
+    message = 'The First National Bank on Vespucci Blvd is currently being robbed.',
+    sprite = 354, -- PD Blip
+    color = 2,  -- Red Color
+})
+```
