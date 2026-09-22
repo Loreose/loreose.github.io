@@ -9,13 +9,13 @@ export function baseOptions(): BaseLayoutProps {
         <div className="flex items-center gap-2 font-semibold">
           {/* Light Theme Logo */}
           <img
-            src="/logo-light.png"
+            src="public/logo-dark.png"
             alt={appName}
             className="h-6 w-auto block dark:hidden"
           />
           {/* Dark Theme Logo */}
           <img
-            src="/logo-dark.png"
+            src="public/logo-light.png"
             alt={appName}
             className="h-6 w-auto hidden dark:block"
           />
