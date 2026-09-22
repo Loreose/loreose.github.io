@@ -1,0 +1,66 @@
+---
+title: RemoveZone
+description: Client-side utility method to remove previously created target interaction zones across supported targeting systems.
+---
+
+# Target System
+
+The Target System module provides a framework-agnostic abstraction layer to register and manage raycast interaction options for entities, models, and zones across targeting handlers like `ox_target` and `qb-target`.
+
+---
+
+## Function: `Bridge.RemoveZone()`
+
+Removes an active target interaction zone from the world using its zone handle or unique name.
+
+### Parameters
+
+- `zoneId` (**number** | **string**): The zone identifier handle (`ox_target` zone ID) or name string (`qb-target` zone name) returned upon zone creation.
+
+---
+
+## Implementation Code
+
+```lua
+--- Removes an active target interaction zone across ox_target and qb-target.
+---
+--- @param zoneId number|string Zone ID handle or unique zone name
+Bridge.RemoveZone = function(zoneId)
+    if not zoneId then return end
+
+    if Bridge.Target == 'ox' then
+        exports.ox_target:removeZone(zoneId)
+    elseif Bridge.Target == 'qb' then
+        exports['qb-target']:RemoveZone(zoneId)
+    end
+end
+```
+
+## Example
+
+```lua
+-- Create a market interaction zone
+local shopCoords = vec3(25.3, -1347.1, 29.5)
+local marketZone = Bridge.AddCircleZone(
+    'temporary_market_zone',
+    shopCoords,
+    1.5,
+    { debug = false },
+    {
+        {
+            name = 'open_shop',
+            label = 'Open Store',
+            icon = 'fas fa-shopping-cart',
+            action = function() print("Store opened.") end
+        }
+    },
+    2.0
+)
+
+-- Remove the zone when the event ends or on resource stop
+AddEventHandler('onResourceStop', function(resourceName)
+    if GetCurrentResourceName() == resourceName then
+        Bridge.RemoveZone(marketZone)
+    end
+end)
+```

@@ -1,0 +1,126 @@
+---
+title: SpawnPedWithTarget
+description: Client-side utility method to spawn static/networked peds and attach target interaction options across supported targeting systems.
+---
+
+# Target System
+
+The Target System module provides a framework-agnostic abstraction layer to register raycast interaction options for entities, models, and zones across targeting handlers like `ox_target` and `qb-target`.
+
+---
+
+## Function: `Bridge.SpawnPedWithTarget()`
+
+Spawns a ped entity with default invincibility and frozen physics settings at specified coordinates, automatically registering target interaction options.
+
+### Parameters
+
+- `model` (**string** | **number**): Model name string or hash for the ped (e.g., `'a_m_y_business_01'`).
+- `coords` (**vector4**): Spawn location vector (`x`, `y`, `z`, `w` where `w` represents heading).
+- `targetOptions` (**table**): Array of interaction option tables. Each option entry supports:
+  - `name` (**string**, _optional_): Unique option identifier. Defaults to `label` if omitted.
+  - `label` (**string**): Display text shown in the targeting UI menu.
+  - `icon` (**string**): FontAwesome icon class (e.g., `'fas fa-comments'`).
+  - `action` (**function**): Callback executed when selected. Receives `entity`, `distance`, and `coords` as arguments.
+  - `canInteract` (**function**, _optional_): Conditional callback returning `boolean` to determine option visibility.
+- `distance` (**number**, _optional_): Maximum interaction distance in meters. Default is `2.0`.
+- `isNetworked` (**boolean**, _optional_): Determines if the ped entity should be synchronized across the network. Default is `false`.
+
+### Returns
+
+- **number**: Returns the created ped entity handle.
+
+---
+
+## Implementation Code
+
+```lua
+--- Spawns a ped and attaches target options across ox_target and qb-target.
+---
+--- @param model string|number Ped model name or hash
+--- @param coords vector4 Spawn position and heading (x, y, z, w)
+--- @param targetOptions table Array of target interaction options
+--- @param distance? number Maximum interaction range (Default: 2.0)
+--- @param isNetworked? boolean Network sync flag (Default: false)
+--- @return number Created ped entity handle
+Bridge.SpawnPedWithTarget = function(model, coords, targetOptions, distance, isNetworked)
+    local modelHash = type(model) == 'string' and GetHashKey(model) or model
+    local isNetworked = isNetworked or false
+    local distance = distance or 2.0
+
+    if not HasModelLoaded(modelHash) then
+        RequestModel(modelHash)
+        while not HasModelLoaded(modelHash) do
+            Wait(10)
+        end
+    end
+
+    local ped = CreatePed(4, modelHash, coords.x, coords.y, coords.z - 1.0, coords.w or 0.0, isNetworked, false)
+
+    SetEntityHeading(ped, coords.w or 0.0)
+    FreezeEntityPosition(ped, true)
+    SetEntityInvincible(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    SetModelAsNoLongerNeeded(modelHash)
+
+    if targetOptions and #targetOptions > 0 then
+        if Bridge.Target == 'ox' then
+            local oxOptions = {}
+            for _, opt in ipairs(targetOptions) do
+                table.insert(oxOptions, {
+                    name = opt.name or opt.label,
+                    icon = opt.icon,
+                    label = opt.label,
+                    distance = distance,
+                    onSelect = function(data)
+                        if opt.action then opt.action(data.entity, data.distance, data.coords) end
+                    end,
+                    canInteract = opt.canInteract
+                })
+            end
+
+            exports.ox_target:addLocalEntity(ped, oxOptions)
+
+        elseif Bridge.Target == 'qb' then
+            local qbOptions = {}
+            for _, opt in ipairs(targetOptions) do
+                table.insert(qbOptions, {
+                    icon = opt.icon,
+                    label = opt.label,
+                    action = opt.action,
+                    canInteract = opt.canInteract
+                })
+            end
+
+            exports['qb-target']:AddTargetEntity(ped, {
+                options = qbOptions,
+                distance = distance
+            })
+        end
+    end
+
+    return ped
+end
+```
+
+## Examples
+
+```lua
+local ped = Bridge.SpawnPedWithTarget(
+    'a_m_y_business_01',
+    vec4(145.2, -1035.4, 29.3, 160.0),
+    {
+        {
+            label = 'Talk',
+            icon = 'fas fa-comments',
+            action = function(entity)
+                print("Talked with NPC:", entity)
+            end,
+            canInteract = function(entity)
+                return not IsPedDeadOrDying(entity, true)
+            end
+        }
+    },
+    2.0
+)
+```

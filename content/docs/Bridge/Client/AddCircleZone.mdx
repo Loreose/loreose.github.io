@@ -1,0 +1,136 @@
+---
+title: AddCircleZone
+description: Client-side utility method to create spherical or circular interaction zones across supported targeting systems.
+---
+
+# Target System
+
+The Target System module provides a framework-agnostic abstraction layer to register raycast interaction options for entities, models, and zones across targeting handlers like `ox_target` and `qb-target`.
+
+---
+
+## Function: `Bridge.AddCircleZone()`
+
+Creates a circular/spherical target interaction zone in the world with configurable debug parameters and action callbacks.
+
+### Parameters
+
+- `name` (**string**): Unique identifier name for the zone.
+- `center` (**vector3**): Center world position (`x`, `y`, `z`) of the zone.
+- `radius` (**number**, _optional_): Radius of the interaction zone in meters. Default is `1.0`.
+- `options` (**table**, _optional_): Additional zone settings:
+  - `debug` (**boolean**, _optional_): Displays visual debug shapes when active. Default is `false`.
+  - `drawSprite` (**boolean**, _optional_): Displays an interaction sprite icon in world space. Default is `false`.
+  - `useZ` (**boolean**, _optional_): Evaluates Z-axis bounds (`qb-target` specific). Default is `true`.
+- `targetOptions` (**table**): Array of interaction option tables. Each option entry supports:
+  - `name` (**string**, _optional_): Unique option identifier. Defaults to `label` if omitted.
+  - `label` (**string**): Display text shown in the targeting UI menu.
+  - `icon` (**string**): FontAwesome icon class (e.g., `'fas fa-shopping-cart'`).
+  - `action` (**function**): Callback executed when selected. Receives `entity`, `distance`, and `coords` as arguments.
+  - `canInteract` (**function**, _optional_): Conditional callback returning `boolean` to determine option visibility.
+- `distance` (**number**, _optional_): Maximum interaction distance in meters. Default is `2.0`.
+
+### Returns
+
+- **number** | **string**: Returns the created zone ID (`ox_target`) or zone name string (`qb-target`).
+
+---
+
+## Implementation Code
+
+```lua
+--- Creates a circular or spherical interaction zone across ox_target and qb-target.
+---
+--- @param name string Unique zone identifier
+--- @param center vector3 Center coordinates (x, y, z)
+--- @param radius? number Zone radius in meters (Default: 1.0)
+--- @param options? table Zone configuration (debug, drawSprite, useZ)
+--- @param targetOptions table Array of target interaction options
+--- @param distance? number Maximum interaction range (Default: 2.0)
+--- @return number|string Zone ID or name
+Bridge.AddCircleZone = function(name, center, radius, options, targetOptions, distance)
+    local radius = radius or 1.0
+    local options = options or {}
+    local distance = distance or 2.0
+
+    if Bridge.Target == 'ox' then
+        local oxOptions = {}
+        for _, opt in ipairs(targetOptions) do
+            table.insert(oxOptions, {
+                name = opt.name or opt.label,
+                icon = opt.icon,
+                label = opt.label,
+                distance = distance,
+                onSelect = function(data)
+                    if opt.action then opt.action(data.entity, data.distance, data.coords) end
+                end,
+                canInteract = opt.canInteract
+            })
+        end
+
+        return exports.ox_target:addSphereZone({
+            name = name,
+            coords = center,
+            radius = radius,
+            debug = options.debug or false,
+            drawSprite = options.drawSprite or false,
+            options = oxOptions
+        })
+
+    elseif Bridge.Target == 'qb' then
+        local qbOptions = {}
+        for _, opt in ipairs(targetOptions) do
+            table.insert(qbOptions, {
+                icon = opt.icon,
+                label = opt.label,
+                action = opt.action,
+                canInteract = opt.canInteract
+            })
+        end
+
+        exports['qb-target']:AddCircleZone(
+            name,
+            center,
+            radius,
+            {
+                name = name,
+                debugPoly = options.debug or false,
+                useZ = options.useZ == nil and true or options.useZ,
+                drawSprite = options.drawSprite or false
+            },
+            {
+                options = qbOptions,
+                distance = distance
+            }
+        )
+
+        return name
+    end
+end
+```
+
+## Example
+
+```lua
+local shopCoords = vec3(25.3, -1347.1, 29.5)
+local myZone = Bridge.AddCircleZone(
+    'market_interaction_zone',
+    shopCoords,
+    1.5,
+    {
+        debug = false,
+        drawSprite = true
+    },
+    {
+        {
+            name = 'open_shop_menu',
+            label = 'Open Store',
+            icon = 'fas fa-shopping-cart',
+            action = function(entity, distance, coords)
+                print("Store menu opened.")
+            end
+        }
+    },
+    2.0
+)
+```

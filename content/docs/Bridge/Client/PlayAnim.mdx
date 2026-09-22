@@ -1,0 +1,123 @@
+---
+title: PlayAnim
+description: Client-side utility method to load, play character animations, and attach props to player entities.
+---
+
+# Client Utilities
+
+The Client Utilities module provides player movement, entity manipulation, and animation helpers for client-side interactions.
+
+---
+
+## Function: `Bridge.PlayAnim()`
+
+Loads and plays a specified animation dictionary/clip on the local player ped, with optional support for loading and attaching a prop model to a designated ped bone.
+
+### Parameters
+
+- `dict` (**string**): The animation dictionary name (e.g., `'amb@world_human_drinking@coffee@male@idle_a'`).
+- `anim` (**string**): The animation clip name within the dictionary (e.g., `'idle_c'`).
+- `duration` (**number**, _optional_): Animation duration in milliseconds. Use `-1` for looping/infinite duration. Default is `-1`.
+- `flag` (**number**, _optional_): Animation flags (e.g., `49` for upper body / movable). Default is `49`.
+- `propModel` (**string** | **number**, _optional_): Model name or hash for an entity prop to spawn and attach.
+- `bone` (**number**, _optional_): Target ped bone index for prop attachment. Default is `28422` (Right Hand).
+- `pos` (**vector3**, _optional_): Offset position vector (`x`, `y`, `z`) for prop attachment. Default is `vec3(0.0, 0.0, 0.0)`.
+- `rot` (**vector3**, _optional_): Offset rotation vector (`x`, `y`, `z`) for prop attachment. Default is `vec3(0.0, 0.0, 0.0)`.
+
+### Returns
+
+- **number** or **nil**: Returns the object handle (`propEntity`) of the attached prop if `propModel` was passed and created, or `nil` otherwise.
+
+---
+
+## Implementation Code
+
+```lua
+--- Plays an animation on the local ped and optionally creates/attaches a prop.
+---
+--- @param dict string Animation dictionary name
+--- @param anim string Animation clip name
+--- @param duration? number Animation duration in ms (Default: -1)
+--- @param flag? number Animation flag (Default: 49)
+--- @param propModel? string|number Prop model name or hash
+--- @param bone? number Bone index to attach prop (Default: 28422)
+--- @param pos? vector3 Attachment offset position
+--- @param rot? vector3 Attachment offset rotation
+--- @return number|nil Created prop entity handle or nil
+Bridge.PlayAnim = function(dict, anim, duration, flag, propModel, bone, pos, rot)
+    local ped = PlayerPedId()
+    local propEntity = nil
+
+    if dict and not HasAnimDictLoaded(dict) then
+        RequestAnimDict(dict)
+        while not HasAnimDictLoaded(dict) do
+            Wait(10)
+        end
+    end
+
+    if propModel then
+        local modelHash = type(propModel) == 'string' and GetHashKey(propModel) or propModel
+
+        if not HasModelLoaded(modelHash) then
+            RequestModel(modelHash)
+            while not HasModelLoaded(modelHash) do
+                Wait(10)
+            end
+        end
+
+        local coords = GetEntityCoords(ped)
+        propEntity = CreateObject(modelHash, coords.x, coords.y, coords.z, true, true, false)
+
+        local boneIndex = bone or 28422
+        local offsetPos = pos or vec3(0.0, 0.0, 0.0)
+        local offsetRot = rot or vec3(0.0, 0.0, 0.0)
+
+        AttachEntityToEntity(
+            propEntity, ped, GetPedBoneIndex(ped, boneIndex),
+            offsetPos.x, offsetPos.y, offsetPos.z,
+            offsetRot.x, offsetRot.y, offsetRot.z,
+            true, true, false, true, 1, true
+        )
+
+        SetModelAsNoLongerNeeded(modelHash)
+    end
+
+    if dict and anim then
+        TaskPlayAnim(
+            ped,
+            dict,
+            anim,
+            8.0, -8.0,
+            duration or -1,
+            flag or 49,
+            0,
+            false, false, false
+        )
+        RemoveAnimDict(dict)
+    end
+
+    return propEntity
+end
+```
+
+## Example
+
+```lua
+-- Play coffee drinking animation and attach coffee cup prop to right hand
+local prop = Bridge.PlayAnim(
+    'amb@world_human_drinking@coffee@male@idle_a',
+    'idle_c',
+    -1,
+    49,
+    'p_amb_coffeecup_01',
+    28422,
+    vec3(0.12, 0.008, 0.03),
+    vec3(-80.0, 0.0, 0.0)
+)
+-- Later, when finishing animation:
+if DoesEntityExist(prop) then
+    DeleteEntity(prop)
+end
+
+ClearPedTasks(PlayerPedId())
+```

@@ -1,0 +1,57 @@
+---
+title: FaceCoords
+description: Client-side utility methods to smoothly rotate the local player entity toward target world coordinates.
+---
+
+# Client Utilities
+
+The Client Utilities module provides player movement, entity rotation, and camera manipulation helpers for client-side interactions.
+
+---
+
+## Function: `Bridge.FaceCoords()`
+
+Smoothly rotates the local player ped to face specified world coordinates using GTA V native task sequences.
+
+### Parameters
+
+- `targetCoords` (**vector3** or **table**): Target world location (`x`, `y`, `z`) for the ped to face.
+- `duration` (**number**, _optional_): Time in milliseconds for the rotation task to complete. Default is `1000`.
+
+### Returns
+
+- **boolean** or **nil**: Returns `true` if target coordinates are provided and task is initiated, or `nil` if `targetCoords` is invalid.
+
+---
+
+## Implementation Code
+
+```lua
+--- Smoothly turns the local player ped toward target world coordinates.
+---
+--- @param targetCoords vector3|table Target world position (x, y, z)
+--- @param duration? number Duration of turn animation in ms (Default: 1000)
+--- @return boolean|nil Success status
+Bridge.FaceCoords = function(targetCoords, duration)
+    if not targetCoords then return end
+
+    local ped = PlayerPedId()
+    local duration = duration or 1000
+
+    TaskTurnPedToFaceCoord(ped, targetCoords.x, targetCoords.y, targetCoords.z, duration)
+    return true
+end
+```
+
+## Example
+
+```lua
+RegisterNetEvent('myScript:client:interactNpc', function(npcCoords)
+     -- Smoothly rotate player toward NPC position over 1.5 seconds
+     local turned = Bridge.FaceCoords(npcCoords, 1500)
+
+     if turned then
+         print("Player successfully faced target coordinates.")
+     end
+end)
+```

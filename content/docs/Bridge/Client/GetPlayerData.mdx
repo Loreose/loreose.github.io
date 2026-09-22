@@ -1,0 +1,52 @@
+---
+title: GetPlayerData
+description: Client-side method to retrieve the active local player's character data table across supported frameworks.
+---
+
+# Client Utilities
+
+The Client Utilities module provides essential client-side helpers for retrieving local character data and framework state information.
+
+---
+
+## Function: `Bridge.GetPlayerData()`
+
+Retrieves the local player's active character data table (`PlayerData` for QBCore or `xPlayer` state for ESX).
+
+### Returns
+
+- **table** or **nil**: Returns the local player's framework data object if available, or `nil` if uninitialized.
+
+---
+
+## Implementation Code
+
+```lua
+--- Retrieves the local player's client-side framework data.
+---
+--- @return table|nil Local player data object or nil
+Bridge.GetPlayerData = function()
+    if Bridge.Framework == 'qb' then
+        local QBCore = exports['qb-core']:GetCoreObject()
+        return QBCore.Functions.GetPlayerData()
+    elseif Bridge.Framework == 'esx' then
+        local ESX = exports['es_extended']:getSharedObject()
+        return ESX.GetPlayerData()
+    end
+    return nil
+end
+```
+
+## Example
+
+```lua
+RegisterCommand('myjob', function()
+    local playerData = Bridge.GetPlayerData()
+    if playerData then
+        local jobName = playerData.job and playerData.job.name or 'unemployed'
+        print(string.format('Active job name: %s', jobName))
+    else
+        print('Failed to retrieve client player data.')
+    end
+end, false)
+```

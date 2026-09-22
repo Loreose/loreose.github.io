@@ -1,0 +1,50 @@
+---
+title: Notify
+description: Client-side utility method to display UI notifications using ox_lib.
+---
+
+# Client Utilities
+
+The Client Utilities module provides essential client-side helpers for user interface feedback and interaction mechanics.
+
+---
+
+## Function: `Bridge.Notify()`
+
+Displays a toast notification to the local player using `ox_lib`.
+
+### Parameters
+
+- `msg` (**string**): The text content of the notification to display.
+- `type` (**string**, _optional_): The visual type/style of notification (e.g., `'inform'`, `'success'`, `'error'`, `'warning'`). Default is `'inform'`.
+- `time` (**number**, _optional_): Display duration in milliseconds. Default is `5000`.
+
+---
+
+## Implementation Code
+
+```lua
+--- Sends a client-side UI notification using ox_lib.
+---
+--- @param msg string Message content
+--- @param type? string Notification visual style (Default: 'inform')
+--- @param time? number Duration in milliseconds (Default: 5000)
+Bridge.Notify = function(msg, type, time)
+    local type = type or 'inform'
+    local time = time or 5000
+
+    if GetResourceState('ox_lib') == 'started' then
+        lib.notify({ description = msg, type = type, duration = time })
+    end
+end
+```
+
+## Example
+
+```lua
+-- Send a success notification with default duration
+Bridge.Notify('You have been given 100 units of processed metal.', 'success')
+
+-- Send an error notification with custom duration
+Bridge.Notify('Failed to start refining process.', 'error', 10000)
+```

@@ -1,0 +1,107 @@
+---
+title: AddTargetBone
+description: Client-side utility method to register target interaction options for specific vehicle bones across supported targeting systems.
+---
+
+# Target System
+
+The Target System module provides a framework-agnostic abstraction layer to register raycast interaction options for entities, models, and zones across targeting handlers like `ox_target` and `qb-target`.
+
+---
+
+## Function: `Bridge.AddTargetBone()`
+
+Attaches interactive target options to specific entity bones (e.g., vehicle bones like `'boot'`, `'bonnet'`, `'engine'`).
+
+### Parameters
+
+- `bones` (**string** | **table**): A single bone name string or an array table of bone names (e.g., `'boot'`, `{'bonnet', 'engine'}`). Automatically converted to a table if passed as a string.
+- `options` (**table**): Array of interaction option tables. Each option entry supports:
+  - `name` (**string**, _optional_): Unique option identifier. Defaults to `label` if omitted.
+  - `label` (**string**): Display text shown in the targeting UI menu.
+  - `icon` (**string**): FontAwesome icon class (e.g., `'fas fa-box-open'`, `'fas fa-wrench'`).
+  - `action` (**function**): Callback executed when selected. Receives the targeted entity handle as an argument.
+  - `canInteract` (**function**, _optional_): Conditional callback returning `boolean` to determine option visibility.
+- `distance` (**number**, _optional_): Maximum interaction distance in meters. Default is `2.0`.
+
+---
+
+## Implementation Code
+
+```lua
+--- Attaches target interaction options to specific vehicle entity bones.
+---
+--- @param bones string|table Single bone name or array of bone names
+--- @param options table Array of target interaction options
+--- @param distance? number Maximum interaction range (Default: 2.0)
+Bridge.AddTargetBone = function(bones, options, distance)
+    local distance = distance or 2.0
+    if type(bones) ~= "table" then bones = { bones } end
+
+    if Bridge.Target == 'ox' then
+        local oxOptions = {}
+        for _, opt in ipairs(options) do
+            table.insert(oxOptions, {
+                name = opt.name or opt.label,
+                icon = opt.icon,
+                label = opt.label,
+                distance = distance,
+                bones = bones,
+                onSelect = function(data)
+                    if opt.action then opt.action(data.entity) end
+                end,
+                canInteract = opt.canInteract
+            })
+        end
+        exports.ox_target:addGlobalVehicle(oxOptions)
+    elseif Bridge.Target == 'qb' then
+        local qbOptions = {}
+        for _, opt in ipairs(options) do
+            table.insert(qbOptions, {
+                icon = opt.icon,
+                label = opt.label,
+                action = opt.action,
+                canInteract = opt.canInteract
+            })
+        end
+        exports['qb-target']:AddTargetBone(bones, {
+            options = qbOptions,
+            distance = distance
+        })
+    end
+end
+```
+
+## Examples
+
+```lua
+Bridge.AddTargetBone('boot', {
+    {
+        name = 'open_trunk',
+        label = 'Open Trunk',
+        icon = 'fas fa-box-open',
+        action = function(entity)
+            SetVehicleDoorOpen(entity, 5, false, false)
+        end,
+        canInteract = function(entity)
+            return DoesEntityExist(entity) and GetVehicleDoorAngleRatio(entity, 5) == 0.0
+        end
+    }
+}, 2.5)
+```
+
+```lua
+Bridge.AddTargetBone({ 'bonnet', 'engine' }, {
+    {
+        name = 'inspect_engine',
+        label = 'Inspect Engine',
+        icon = 'fas fa-wrench',
+        action = function(entity)
+            print("Inspecting engine. Vehicle ID:", entity)
+        end,
+        canInteract = function(entity)
+            return DoesEntityExist(entity) and not IsEntityDead(entity)
+        end
+    }
+}, 2.0)
+```

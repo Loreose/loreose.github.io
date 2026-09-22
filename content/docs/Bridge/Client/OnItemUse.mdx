@@ -1,0 +1,62 @@
+---
+title: OnItemUse
+description: Client-side event listener to capture and handle item usage triggers across supported frameworks.
+---
+
+# Inventory Management
+
+The Inventory module provides a framework-agnostic bridge to handle item checks and inventory events across supported inventory handlers and frameworks like `QBCore` and `ESX`.
+
+---
+
+## Function: `Bridge.OnItemUse()`
+
+Registers a client-side event listener that executes a callback when a specific item is used by the player.
+
+### Parameters
+
+- `itemName` (**string**): The internal item name registered in your inventory items list (e.g., `'lockpick'`, `'medkit'`).
+- `callback` (**function**): The callback function executed when the item trigger is received. Passes `item` (**table** or **string**) as the single argument.
+
+---
+
+## Implementation Code
+
+```lua
+--- Registers a client-side listener for item usage events.
+---
+--- @param itemName string Internal item name
+--- @param callback function Callback function executed upon item use
+Bridge.OnItemUse = function(itemName, callback)
+    if Bridge.Framework == 'qb' then
+        RegisterNetEvent('QBCore:Client:UseItem', function(item)
+            if item.name == itemName then
+                callback(item)
+            end
+        end)
+    elseif Bridge.Framework == 'esx' then
+        RegisterNetEvent('esx:useItem', function(item)
+            if item == itemName then
+                callback(item)
+            end
+        end)
+    end
+end
+```
+
+## Example
+
+```lua
+Bridge.OnItemUse('lockpick', function(item)
+    print("Lockpick used! Item data:", json.encode(item))
+    -- Start animation or lockpick minigame
+    local success = lib.progressBar({
+        duration = 4000,
+        label = 'Attempting to lockpick...',
+        anim = { dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@', clip = 'machinic_loop_mechanic' }
+    })
+    if success then
+        Bridge.Notify('Lockpick attempt successful!', 'success')
+    end
+end)
+```

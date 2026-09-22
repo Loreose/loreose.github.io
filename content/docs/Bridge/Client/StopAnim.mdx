@@ -1,0 +1,55 @@
+---
+title: StopAnim
+description: Client-side utility method to clear player ped animations and safely cleanup attached prop entities.
+---
+
+# Client Utilities
+
+The Client Utilities module provides player movement, entity manipulation, and animation helpers for client-side interactions.
+
+---
+
+## Function: `Bridge.StopAnim()`
+
+Clears current task sequences and animations on the local player ped, detaching and deleting any associated prop entity handle passed to it.
+
+### Parameters
+
+- `propEntity` (**number**, _optional_): Object handle of the attached prop entity to detach and delete.
+
+---
+
+## Implementation Code
+
+```lua
+--- Clears ped animations and cleans up attached prop entity.
+---
+--- @param propEntity? number Object handle of the prop to delete
+Bridge.StopAnim = function(propEntity)
+    local ped = PlayerPedId()
+    ClearPedTasks(ped)
+    if propEntity and DoesEntityExist(propEntity) then
+        DetachEntity(propEntity, true, true)
+        DeleteEntity(propEntity)
+    end
+end
+```
+
+## Example
+
+```lua
+-- Play animation and get prop entity handle
+local prop = Bridge.PlayAnim(
+    'amb@world_human_drinking@coffee@male@idle_a',
+    'idle_c',
+    -1,
+    49,
+    'p_amb_coffeecup_01',
+    28422,
+    vec3(0.12, 0.008, 0.03),
+    vec3(-80.0, 0.0, 0.0)
+)
+Wait(5000)
+-- Stop animation and clean up attached coffee cup prop
+Bridge.StopAnim(prop)
+```

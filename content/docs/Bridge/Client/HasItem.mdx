@@ -1,0 +1,61 @@
+---
+title: HasItem
+description: Client-side methods to verify item availability in the local player's inventory across supported inventory systems.
+---
+
+# Inventory Management
+
+The Inventory module provides a framework-agnostic bridge to handle item checks and inventory operations across supported inventory handlers like `ox_inventory` and `qb-inventory`.
+
+---
+
+## Function: `Bridge.HasItem()`
+
+Checks whether the local player possesses a specified item and minimum required amount in their client-side inventory.
+
+### Parameters
+
+- `itemName` (**string**): The internal item name registered in your inventory items list (e.g., `'phone'`, `'radio'`).
+- `amount` (**number**, _optional_): The minimum quantity required. Default is `1`.
+
+### Returns
+
+- **boolean**: Returns `true` if the local player has at least the specified amount of the item, or `false` otherwise.
+
+---
+
+## Implementation Code
+
+```lua
+--- Checks if the local player has the required quantity of an item (Client-side).
+---
+--- @param itemName string Internal item name
+--- @param amount? number Minimum required quantity (Default: 1)
+--- @return boolean True if requirements met, false otherwise
+Bridge.HasItem = function(itemName, amount)
+    local amount = amount or 1
+
+    if Bridge.Inventory == 'ox' then
+        return exports.ox_inventory:Search('count', itemName) >= amount
+    elseif Bridge.Inventory == 'qb' then
+        local QBCore = exports['qb-core']:GetCoreObject()
+        return QBCore.Functions.HasItem(itemName, amount)
+    end
+
+    return false
+end
+```
+
+## Example
+
+```lua
+RegisterCommand('phonestatus', function()
+    -- Check if local player has at least 1 phone in inventory
+    local hasPhone = Bridge.HasItem('phone', 1)
+    if hasPhone then
+        Bridge.Notify('You have your phone with you!', 'info')
+    else
+        Bridge.Notify('No phone found in your pockets!', 'error')
+    end
+end)
+```

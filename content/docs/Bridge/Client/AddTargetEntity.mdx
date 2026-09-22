@@ -1,0 +1,91 @@
+---
+title: AddTargetEntity
+description: Client-side utility method to attach target interaction options to specific entity handles across supported targeting systems.
+---
+
+# Target System
+
+The Target System module provides a framework-agnostic abstraction layer to register raycast interaction options for entities, models, and zones across targeting handlers like `ox_target` and `qb-target`.
+
+---
+
+## Function: `Bridge.AddTargetEntity()`
+
+Attaches interactive target options to a specific entity handle (ped, vehicle, or object) in the world.
+
+### Parameters
+
+- `entity` (**number**): The entity handle (net ID or local entity handle) to attach targeting options to.
+- `options` (**table**): Array of interaction option tables. Each option entry supports:
+  - `name` (**string**, _optional_): Unique option identifier. Defaults to `label` if omitted.
+  - `label` (**string**): Display text shown in the targeting UI menu.
+  - `icon` (**string**): FontAwesome icon class (e.g., `'fas fa-magnifying-glass'`).
+  - `action` (**function**): Callback executed when selected. Receives the targeted entity handle as an argument.
+  - `canInteract` (**function**, _optional_): Conditional callback returning `boolean` to determine option visibility.
+- `distance` (**number**, _optional_): Maximum interaction distance in meters. Default is `2.0`.
+
+---
+
+## Implementation Code
+
+```lua
+--- Attaches target options to a local entity across ox_target and qb-target.
+---
+--- @param entity number Targeted entity handle
+--- @param options table Array of target interaction options
+--- @param distance? number Maximum interaction range (Default: 2.0)
+Bridge.AddTargetEntity = function(entity, options, distance)
+    local distance = distance or 2.0
+
+    if Bridge.Target == 'ox' then
+        local oxOptions = {}
+        for _, opt in ipairs(options) do
+            table.insert(oxOptions, {
+                name = opt.name or opt.label,
+                icon = opt.icon,
+                label = opt.label,
+                distance = distance,
+                onSelect = function(data)
+                    if opt.action then opt.action(data.entity) end
+                end,
+                canInteract = opt.canInteract
+            })
+        end
+        exports.ox_target:addLocalEntity(entity, oxOptions)
+
+    elseif Bridge.Target == 'qb' then
+        local qbOptions = {}
+        for _, opt in ipairs(options) do
+            table.insert(qbOptions, {
+                icon = opt.icon,
+                label = opt.label,
+                action = opt.action,
+                canInteract = opt.canInteract
+            })
+        end
+        exports['qb-target']:AddTargetEntity(entity, {
+            options = qbOptions,
+            distance = distance
+        })
+    end
+end
+```
+
+## Example
+
+```lua
+local veh = GetVehiclePedIsIn(PlayerPedId(), false)
+Bridge.AddTargetEntity(veh, {
+    {
+        name = 'vehicle_inspect',
+        label = 'Inspect Vehicle',
+        icon = 'fas fa-magnifying-glass',
+        action = function(entity)
+            print("Inspected Vehicle Entity ID:", entity)
+        end,
+        canInteract = function(entity)
+            return DoesEntityExist(entity) and not IsEntityDead(entity)
+        end
+    }
+}, 2.5)
+```
