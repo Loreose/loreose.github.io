@@ -42,7 +42,7 @@ export function baseOptions(): BaseLayoutProps {
               alt="Tebex"
               width={22}
               height={22}
-              className="opacity-75 hover:opacity-100 block dark:hidden"
+              className="block dark:hidden"
             />
             {/* Dark Theme Tebex Icon */}
             <img
@@ -50,7 +50,7 @@ export function baseOptions(): BaseLayoutProps {
               alt="Tebex"
               width={22}
               height={22}
-              className="opacity-75 hover:opacity-100 hidden dark:block"
+              className="hidden dark:block"
             />
           </div>
         ),
@@ -68,7 +68,7 @@ export function baseOptions(): BaseLayoutProps {
               alt="Discord"
               width={22}
               height={22}
-              className="opacity-75 hover:opacity-100 block dark:hidden"
+              className="block dark:hidden"
             />
             {/* Dark Theme Discord Icon */}
             <img
@@ -76,12 +76,12 @@ export function baseOptions(): BaseLayoutProps {
               alt="Discord"
               width={22}
               height={22}
-              className="opacity-75 hover:opacity-100 hidden dark:block"
+              className="hidden dark:block"
             />
           </div>
         ),
         text: "Discord",
-        url: "https://discord.gg/your-server",
+        url: "https://discord.gg/DGHf822FBQ",
       },
     ],
   };
