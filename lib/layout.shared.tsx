@@ -55,7 +55,7 @@ export function baseOptions(): BaseLayoutProps {
           </div>
         ),
         text: "Tebex Store",
-        url: "https://your-store.tebex.io",
+        url: "https://loreosescripts.tebex.store",
       },
       {
         type: "icon",
