@@ -1,0 +1,56 @@
+---
+title: SyncClothingFromPed
+description: Client-side export to scan the ped's currently worn clothing components and synchronize them with inventory equipment slots.
+icon: RefreshCw
+---
+
+# Clothing & Equipment Exports
+
+The ped synchronization system ensures consistency between GTA V's native ped components/props and the inventory equipment slots.
+
+---
+
+## Export: `SyncClothingFromPed`
+
+Scans all active clothing drawables, props, and textures on the local player ped model, updating the inventory's equipment slots to match what the character is physically wearing.
+
+This export is critical after events that modify clothing outside ox_inventory (such as clothing shops, barber shops, plastic surgeon menus, or character customization resources like `illenium-appearance` or `qb-clothing`).
+
+### Signature
+
+```lua
+exports.ox_inventory:SyncClothingFromPed(force)
+```
+
+### Parameters
+
+- `force` (**boolean**, _optional_): When set to `true`, forces a complete re-scan and synchronization even if the ped model hash or cache hasn't changed. Defaults to `false`.
+
+### Returns
+
+- **void**
+
+---
+
+## Example Usage
+
+### Integration with Clothing Store / Barber Shop
+
+```lua
+-- Triggered after exiting a clothing or appearance shop
+RegisterNetEvent('myClothingShop:onMenuClosed', function()
+    -- Force synchronization to record new components into inventory equipment
+    exports.ox_inventory:SyncClothingFromPed(true)
+end)
+```
+
+### Character Spawn / Relog Hook
+
+```lua
+AddEventHandler('playerSpawned', function()
+    -- Small delay to allow the player model to fully load and apply components
+    SetTimeout(1500, function()
+        exports.ox_inventory:SyncClothingFromPed(true)
+    end)
+end)
+```

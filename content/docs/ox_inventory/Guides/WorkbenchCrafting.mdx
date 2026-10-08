@@ -1,0 +1,87 @@
+---
+title: Workbench Crafting
+description: How to configure location-based crafting benches in data/crafting.lua with interaction points, zones, and tool durability loss.
+icon: Wrench
+---
+
+# Workbench Crafting Configuration
+
+Unlike portable handcrafting, workbench crafting requires players to be located at specific coordinates or within designated interaction zones (such as mechanic garages, weapon benches, or gang hideouts).
+
+---
+
+## Configuration File: `data/crafting.lua`
+
+Workbench tables are declared as a list of workbench definitions in [`ox_inventory/data/crafting.lua`](#).
+
+### Workbench Definition Schema
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | Unique internal identifier for the workbench (e.g., `'workbench_mechanic'`). |
+| `label` | `string` | Title shown in the header of the workbench crafting interface. |
+| `items` | `table` | Array of recipes available at this specific workbench. |
+| `points` | `table` | Array of interaction coordinates using `vec3(x, y, z)` where players can interact. |
+| `zones` | `table` | *(Optional)* Array of polyzone/boxzone bounding boxes with `coords`, `size`, and `rotation`. |
+
+---
+
+## Tool Durability & Ingredient Mechanics
+
+`ox_inventory` crafting supports both consumable ingredients and reusable tools:
+
+- **Whole Number (e.g. `5`):** Consumes exactly `5` units of the item.
+- **Decimal Value (e.g. `0.05`):** Treats the item as a durable tool (e.g., `WEAPON_HAMMER`). Instead of deleting the tool, crafting will deduct **5% durability** from the item. If the durability reaches `0`, the tool breaks.
+
+---
+
+## Example Workbench Definition
+
+```lua
+-- data/crafting.lua
+
+return {
+    {
+        name = 'workbench_mechanic',      -- Unique workbench identifier
+        label = 'Mechanic Workbench',     -- Display title
+        items = {
+            {
+                name = 'WEAPON_KNIFE',
+                ingredients = {
+                    scrapmetal = 5,
+                    sticks = 3,
+                    WEAPON_HAMMER = 0.05  -- 0.05 degrades hammer durability by 5% instead of consuming it
+                },
+                duration = 5000,
+                count = 1,
+            },
+            {
+                name = 'lockpick',
+                ingredients = {
+                    scrapmetal = 4,
+                },
+                duration = 3000,
+                count = 2,
+            }
+        },
+        points = {
+            -- World interaction coordinates:
+            vec3(-1147.08, -2002.66, 13.18),
+        },
+        zones = {
+            -- Optional target/polyzone box:
+            {
+                coords = vec3(-1146.2, -2002.05, 13.2),
+                size = vec3(2.0, 1.0, 1.0),
+                rotation = 45.0,
+            }
+        }
+    }
+}
+```
+
+---
+
+## Target Interaction & Proximity
+
+When a player approaches the specified `points` or steps inside the configured `zones`, an interaction prompt (or target option via `ox_target`) allows the player to open the crafting table.

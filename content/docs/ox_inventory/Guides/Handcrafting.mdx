@@ -1,0 +1,66 @@
+---
+title: Handcrafting
+description: How to configure on-the-go handcrafting recipes in data/handcrafting.lua without requiring a physical workbench.
+icon: Hammer
+---
+
+# Portable Handcrafting Configuration
+
+Handcrafting allows players to craft essential items directly from the contents of their pockets without needing to stand next to a physical crafting table or workbench.
+
+---
+
+## Configuration File: `data/handcrafting.lua`
+
+All handcrafting recipes are organized inside [`ox_inventory/data/handcrafting.lua`](#).
+
+### Recipe Structure & Fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `name` | `string` | The internal item name produced by this recipe (must match an entry in `data/items.lua`). |
+| `ingredients` | `table` | Key-value pairs where the key is the ingredient item name and the value is the quantity consumed. |
+| `duration` | `number` | Time required to finish crafting in milliseconds (e.g. `5000` = 5 seconds). |
+| `count` | `number` | The quantity of the produced item added to the player's inventory upon completion. |
+
+---
+
+## Example Recipe Definition
+
+```lua
+-- data/handcrafting.lua
+
+return {
+    name = 'handcrafting',
+    items = {
+        {
+            name = 'campfire',            -- Item name (must exist in items.lua)
+            ingredients = {
+                sticks = 5,               -- Requires 5x 'sticks'
+            },
+            duration = 5000,              -- 5 seconds crafting duration
+            count = 1,                    -- Produces 1x 'campfire'
+        },
+        {
+            name = 'lockpick',            -- Item name (must exist in items.lua)
+            ingredients = {
+                scrapmetal = 3,           -- Requires 3x 'scrapmetal'
+            },
+            duration = 4000,              -- 4 seconds crafting duration
+            count = 1,                    -- Produces 1x 'lockpick'
+        },
+    }
+}
+```
+
+---
+
+## Opening Handcrafting in Game
+
+Players can open the handcrafting menu at any time using the client-side export:
+
+```lua
+exports.ox_inventory:openHandcrafting()
+```
+
+You can bind this export to a hotkey, chat command (e.g., `/craft`), or a survival radial menu item.

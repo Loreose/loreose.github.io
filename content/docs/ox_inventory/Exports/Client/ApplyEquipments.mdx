@@ -1,0 +1,53 @@
+---
+title: ApplyEquipments
+description: Client-side export to apply items currently stored in the equipment slots directly onto the player ped model.
+icon: UserCheck
+---
+
+# Clothing & Equipment Exports
+
+The equipment application module enforces visual fidelity by writing equipment slot data onto the ped's GTA V components and props.
+
+---
+
+## Export: `ApplyEquipments`
+
+Iterates through all items currently stored in the player's equipment inventory slots (jackets, vests, pants, shoes, watches, hats, etc.) and reapplies their corresponding component drawables and prop indices directly onto the local ped.
+
+### Signature
+
+```lua
+exports.ox_inventory:ApplyEquipments()
+```
+
+### Parameters
+
+This export takes no parameters.
+
+### Returns
+
+- **void**
+
+---
+
+## Example Usage
+
+### Re-applying Equipment After Character Respawn
+
+```lua
+AddEventHandler('esx_ambulancejob:revive', function()
+    -- Wait briefly for ped reload
+    Wait(500)
+    -- Reapply equipped clothing onto the ped model
+    exports.ox_inventory:ApplyEquipments()
+end)
+```
+
+### Ped Model / Outfit Switcher
+
+```lua
+RegisterNetEvent('customOutfits:appliedPreset', function()
+    -- Ensures equipment items match the updated character appearance
+    exports.ox_inventory:ApplyEquipments()
+end)
+```

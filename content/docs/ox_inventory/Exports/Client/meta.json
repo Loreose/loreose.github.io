@@ -1,0 +1,11 @@
+{
+  "title": "Client Exports",
+  "icon": "Monitor",
+  "pages": [
+    "GetEquipments",
+    "ToggleClothing",
+    "SyncClothingFromPed",
+    "ApplyEquipments",
+    "openHandcrafting"
+  ]
+}

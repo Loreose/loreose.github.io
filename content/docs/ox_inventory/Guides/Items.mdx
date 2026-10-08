@@ -1,0 +1,82 @@
+---
+title: Adding Items
+description: Guide on defining custom items in data/items.lua with weight, stackability, grid dimensions, animations, and icons.
+icon: PackagePlus
+---
+
+# Item Management
+
+Items in `ox_inventory` are modular and data-driven. Every item available in the game world, shops, crafting, and containers is registered inside `data/items.lua`.
+
+---
+
+## Defining Items in `data/items.lua`
+
+Open [`ox_inventory/data/items.lua`](#) and append your new item table using the internal item name as the dictionary key.
+
+### Item Properties Reference
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `label` | `string` | Human-readable name displayed in the UI. |
+| `weight` | `number` | Item weight measured in **grams** (e.g. `50` = 0.05kg, `1000` = 1.0kg). |
+| `stack` | `boolean` | Allows multiple instances of the item to occupy a single slot when `true`. |
+| `close` | `boolean` | Closes the inventory screen upon item consumption or use when `true`. |
+| `gridWidth` | `number` | Number of horizontal grid slots the item spans (1 to 5). |
+| `gridHeight` | `number` | Number of vertical grid slots the item spans (1 to 5). |
+| `description` | `string` | Tooltip description shown on hover in the inventory interface. |
+| `client.anim` | `table` | *(Optional)* Animation dictionary (`dict`) and animation clip (`clip`) played on use. |
+| `client.usetime` | `number` | *(Optional)* Time required in milliseconds to consume or use the item. |
+
+---
+
+## Example Item Definitions
+
+```lua
+-- data/items.lua
+
+['sticks'] = {
+    label = 'Sticks',             -- Display name in inventory
+    weight = 50,                  -- Weight in grams
+    stack = true,                 -- Can this item be stacked?
+    close = false,                -- Should inventory close when used?
+    gridWidth = 1,                -- Grid width in inventory slots (1-5)
+    gridHeight = 1,               -- Grid height in inventory slots (1-5)
+    description = 'Dry wooden sticks gathered from trees.',
+},
+
+['campfire'] = {
+    label = 'Campfire',
+    weight = 1000,
+    stack = false,
+    close = true,
+    gridWidth = 2,
+    gridHeight = 2,
+    description = 'A portable campfire used for warmth and cooking.',
+    client = {
+        anim = { dict = 'amb@world_human_gardener_plant@male@base', clip = 'base' },
+        usetime = 3000,
+    }
+},
+```
+
+---
+
+## 🖼️ Item Images & UI Icons
+
+Every item requires a corresponding PNG image to be rendered within the inventory UI grid:
+
+1. **Format:** Standard `.png` format with transparent background.
+2. **Naming Convention:** Exactly match the item internal key in **all lowercase**.
+3. **Directory Path:**
+   ```text
+   ox_inventory/web/images/<item_name>.png
+   ```
+
+### Examples:
+
+- `ox_inventory/web/images/sticks.png`
+- `ox_inventory/web/images/campfire.png`
+- `ox_inventory/web/images/lockpick.png`
+
+> **Note:** If you add new images while the server is running, players may need to restart their game or clear NUI browser cache (`Ctrl + F5` while inventory is open) to reload newly added icons.

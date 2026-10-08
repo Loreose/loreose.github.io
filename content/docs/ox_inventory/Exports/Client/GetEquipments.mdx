@@ -1,0 +1,77 @@
+---
+title: GetEquipments (Client)
+description: Client-side export to retrieve all currently equipped clothing and gear items for the local player.
+icon: Shirt
+---
+
+# Clothing & Equipment Exports
+
+The Clothing & Equipment module exposes methods to interact with wearable inventory slots, ped components, and props.
+
+---
+
+## Export: `GetEquipments`
+
+Retrieves a dictionary of all equipment slots currently occupied by the local player, including the item name and appearance metadata (`drawable`, `texture`, etc.).
+
+### Signature
+
+```lua
+local equipments = exports.ox_inventory:GetEquipments()
+```
+
+### Parameters
+
+This client export takes no parameters.
+
+### Returns
+
+- **table**: A key-value table indexed by slot identifier string. Each entry contains:
+  - `name` (**string**): Internal item name (e.g. `'jacket'`, `'mask'`).
+  - `label` (**string**, _optional_): Item display label.
+  - `metadata` (**table**): Clothing appearance metadata containing:
+    - `drawable` (**number**): Ped component or prop drawable ID.
+    - `texture` (**number**): Texture variation ID.
+
+---
+
+## Example Usage
+
+### Inspect Local Player Equipment
+
+```lua
+RegisterCommand('checkgear', function()
+    local equipments = exports.ox_inventory:GetEquipments()
+
+    if not equipments or next(equipments) == nil then
+        print('No equipment items currently equipped.')
+        return
+    end
+
+    for slot, item in pairs(equipments) do
+        print(string.format('Slot: %s | Item: %s | Drawable: %s | Texture: %s',
+            slot,
+            item.name,
+            item.metadata and item.metadata.drawable or 'N/A',
+            item.metadata and item.metadata.texture or 'N/A'
+        ))
+    end
+end, false)
+```
+
+### Checking for a Specific Equipped Item
+
+```lua
+local function hasJacketEquipped()
+    local equipments = exports.ox_inventory:GetEquipments()
+    if not equipments then return false end
+
+    for _, item in pairs(equipments) do
+        if item.name == 'jacket' then
+            return true
+        end
+    end
+
+    return false
+end
+```

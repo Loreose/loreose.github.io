@@ -1,0 +1,71 @@
+---
+title: openHandcrafting
+description: Client-side export to open the portable handcrafting panel directly without requiring a workbench or interaction point.
+icon: Hammer
+---
+
+# Handcrafting Exports
+
+The Handcrafting module provides a portable, inventory-integrated crafting station that players can open anytime to craft items using materials currently in their inventory pockets.
+
+---
+
+## Export: `openHandcrafting`
+
+Opens the client-side portable handcrafting user interface. Unlike stationary workbenches defined in `data/crafting.lua`, handcrafting recipes do not require proximity to a physical station or world entity.
+
+### Signature
+
+```lua
+exports.ox_inventory:openHandcrafting()
+```
+
+### Parameters
+
+This export takes no parameters.
+
+### Returns
+
+- **void**
+
+---
+
+## Example Usage
+
+### Dedicated Chat Command
+
+```lua
+RegisterCommand('craft', function()
+    -- Open the on-the-go handcrafting window
+    exports.ox_inventory:openHandcrafting()
+end, false)
+
+-- Register key mapping (e.g., press 'K' to open handcrafting)
+RegisterKeyMapping('craft', 'Open Portable Handcrafting', 'keyboard', 'K')
+```
+
+### Radial Menu Action
+
+```lua
+lib.registerRadial({
+    id = 'survival_radial',
+    items = {
+        {
+            label = 'Handcrafting',
+            icon = 'hammer',
+            onSelect = function()
+                exports.ox_inventory:openHandcrafting()
+            end
+        }
+    }
+})
+```
+
+### Usable Item Trigger (Survival Manual / Multi-tool)
+
+```lua
+-- In your client item usage script
+exports('useSurvivalKit', function(data, slot)
+    exports.ox_inventory:openHandcrafting()
+end)
+```

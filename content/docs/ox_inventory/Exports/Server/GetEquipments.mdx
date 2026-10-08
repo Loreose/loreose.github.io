@@ -1,0 +1,81 @@
+---
+title: GetEquipments (Server)
+description: Server-side export to retrieve all currently equipped clothing and gear items for a target player by their server ID.
+icon: Database
+---
+
+# Server Inventory Exports
+
+The Server Equipment module allows server scripts to query and validate what wearable items and accessories a specific connected player currently has equipped.
+
+---
+
+## Export: `GetEquipments`
+
+Retrieves a dictionary of all active equipment slots and item metadata for a specific connected player, queried by their server ID (`source`).
+
+### Signature
+
+```lua
+local equipments = exports.ox_inventory:GetEquipments(targetSource)
+```
+
+### Parameters
+
+- `targetSource` (**number**): The server ID (`source`) of the target player.
+
+### Returns
+
+- **table** or **nil**: A key-value table containing equipped items and their metadata, or `nil` if the player cannot be found.
+  - `name` (**string**): Internal item name (e.g. `'jacket'`, `'vest'`).
+  - `metadata` (**table**): Clothing appearance and component metadata.
+
+---
+
+## Example Usage
+
+### Server Command to Inspect Player Equipment (Admin / Police)
+
+```lua
+RegisterCommand('inspectequipment', function(source, args)
+    local targetId = tonumber(args[1])
+    if not targetId then
+        print('Usage: /inspectequipment [playerId]')
+        return
+    end
+
+    local equipments = exports.ox_inventory:GetEquipments(targetId)
+
+    if not equipments or next(equipments) == nil then
+        print(string.format('Player %d has no equipment worn.', targetId))
+        return
+    end
+
+    print(string.format('--- Equipment for Player %d ---', targetId))
+    for slot, item in pairs(equipments) do
+        print(string.format('Slot %s: %s (Drawable: %s, Texture: %s)',
+            slot,
+            item.name,
+            item.metadata and item.metadata.drawable or 'N/A',
+            item.metadata and item.metadata.texture or 'N/A'
+        ))
+    end
+end, true) -- Restricted command
+```
+
+### Server-Side Vest / Armor Verification
+
+```lua
+local function isPlayerWearingVest(source)
+    local equipments = exports.ox_inventory:GetEquipments(source)
+    if not equipments then return false end
+
+    for _, item in pairs(equipments) do
+        if item.name == 'vest' or item.name == 'bulletproof_vest' then
+            return true
+        end
+    end
+
+    return false
+end
+```

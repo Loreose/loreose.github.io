@@ -1,0 +1,9 @@
+{
+  "title": "OX Inventory",
+  "icon": "Boxes",
+  "pages": [
+    "index",
+    "Exports",
+    "Guides"
+  ]
+}

@@ -1,0 +1,83 @@
+---
+title: ToggleClothing
+description: Client-side export to toggle (equip or unequip) a specific clothing item with animation playback.
+icon: Shirt
+---
+
+# Clothing & Equipment Exports
+
+The Clothing & Equipment module allows scripts, radial wheels, and hotkeys to smoothly equip or unequip wearable items on the local player.
+
+---
+
+## Export: `ToggleClothing`
+
+Toggles the state of a specific clothing slot or item. If the item is currently worn, it plays the designated unequip animation and removes it. If it is stored in inventory, it equips it onto the player ped.
+
+### Signature
+
+```lua
+exports.ox_inventory:ToggleClothing(clothingType)
+```
+
+### Parameters
+
+- `clothingType` (**string**): The target clothing identifier or item name (e.g., `'jacket'`, `'mask'`, `'watch'`, `'bracelet'`, `'glasses'`, `'hat'`).
+
+### Returns
+
+- **boolean** or **nil**: Returns `true` if the toggle operation successfully initiated.
+
+---
+
+## Example Usage
+
+### Radial Menu / Keybind Integrations
+
+```lua
+-- Toggle jacket on or off
+RegisterCommand('togglejacket', function()
+    exports.ox_inventory:ToggleClothing('jacket')
+end, false)
+
+-- Toggle face mask on or off
+RegisterCommand('togglemask', function()
+    exports.ox_inventory:ToggleClothing('mask')
+end, false)
+
+-- Toggle wrist watch
+RegisterCommand('togglewatch', function()
+    exports.ox_inventory:ToggleClothing('watch')
+end, false)
+```
+
+### Custom Radial Menu Action
+
+```lua
+lib.registerRadial({
+    id = 'clothing_menu',
+    items = {
+        {
+            label = 'Toggle Jacket',
+            icon = 'shirt',
+            onSelect = function()
+                exports.ox_inventory:ToggleClothing('jacket')
+            end
+        },
+        {
+            label = 'Toggle Mask',
+            icon = 'mask',
+            onSelect = function()
+                exports.ox_inventory:ToggleClothing('mask')
+            end
+        },
+        {
+            label = 'Toggle Hat',
+            icon = 'hat-cowboy',
+            onSelect = function()
+                exports.ox_inventory:ToggleClothing('hat')
+            end
+        }
+    }
+})
+```
