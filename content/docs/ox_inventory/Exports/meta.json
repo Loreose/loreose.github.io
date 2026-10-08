@@ -1,8 +1,4 @@
 {
   "title": "Exports",
-  "icon": "Code",
-  "pages": [
-    "Client",
-    "Server"
-  ]
+  "pages": ["Client", "Server"]
 }

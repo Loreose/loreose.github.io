@@ -1,7 +1,4 @@
 {
   "title": "Server Exports",
-  "icon": "Server",
-  "pages": [
-    "GetEquipments"
-  ]
+  "pages": ["GetEquipments"]
 }

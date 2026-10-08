@@ -1,10 +1,4 @@
 {
   "title": "Guides & Configuration",
-  "icon": "BookOpen",
-  "pages": [
-    "Items",
-    "Handcrafting",
-    "WorkbenchCrafting",
-    "Clothing"
-  ]
+  "pages": ["Items", "Handcrafting", "WorkbenchCrafting", "Clothing"]
 }
