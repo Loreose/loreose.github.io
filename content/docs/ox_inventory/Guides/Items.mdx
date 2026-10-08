@@ -15,17 +15,17 @@ Open [`ox_inventory/data/items.lua`](#) and append your new item table using the
 
 ### Item Properties Reference
 
-| Property | Type | Description |
-| :--- | :--- | :--- |
-| `label` | `string` | Human-readable name displayed in the UI. |
-| `weight` | `number` | Item weight measured in **grams** (e.g. `50` = 0.05kg, `1000` = 1.0kg). |
-| `stack` | `boolean` | Allows multiple instances of the item to occupy a single slot when `true`. |
-| `close` | `boolean` | Closes the inventory screen upon item consumption or use when `true`. |
-| `gridWidth` | `number` | Number of horizontal grid slots the item spans (1 to 5). |
-| `gridHeight` | `number` | Number of vertical grid slots the item spans (1 to 5). |
-| `description` | `string` | Tooltip description shown on hover in the inventory interface. |
-| `client.anim` | `table` | *(Optional)* Animation dictionary (`dict`) and animation clip (`clip`) played on use. |
-| `client.usetime` | `number` | *(Optional)* Time required in milliseconds to consume or use the item. |
+| Property         | Type      | Description                                                                           |
+| :--------------- | :-------- | :------------------------------------------------------------------------------------ |
+| `label`          | `string`  | Human-readable name displayed in the UI.                                              |
+| `weight`         | `number`  | Item weight measured in **grams** (e.g. `50` = 0.05kg, `1000` = 1.0kg).               |
+| `stack`          | `boolean` | Allows multiple instances of the item to occupy a single slot when `true`.            |
+| `close`          | `boolean` | Closes the inventory screen upon item consumption or use when `true`.                 |
+| `gridWidth`      | `number`  | Number of horizontal grid slots the item spans (1 to 5).                              |
+| `gridHeight`     | `number`  | Number of vertical grid slots the item spans (1 to 5).                                |
+| `description`    | `string`  | Tooltip description shown on hover in the inventory interface.                        |
+| `client.anim`    | `table`   | _(Optional)_ Animation dictionary (`dict`) and animation clip (`clip`) played on use. |
+| `client.usetime` | `number`  | _(Optional)_ Time required in milliseconds to consume or use the item.                |
 
 ---
 
@@ -61,7 +61,7 @@ Open [`ox_inventory/data/items.lua`](#) and append your new item table using the
 
 ---
 
-## 🖼️ Item Images & UI Icons
+## Item Images & UI Icons
 
 Every item requires a corresponding PNG image to be rendered within the inventory UI grid:
 
